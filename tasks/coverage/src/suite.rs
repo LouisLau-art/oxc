@@ -7,16 +7,14 @@ use std::{
     process::{Command, Stdio},
 };
 
-use console::Style;
 use encoding_rs::UTF_16LE;
 use encoding_rs_io::DecodeReaderBytesBuilder;
 use oxc::{
     diagnostics::{GraphicalReportHandler, GraphicalTheme, NamedSource, OxcDiagnostic},
     span::SourceType,
 };
-use oxc_tasks_common::{Snapshot, normalize_path};
+use oxc_tasks_common::{Snapshot, normalize_path, print_diff_in_terminal};
 use rayon::prelude::*;
-use similar::{ChangeTag, TextDiff};
 use tokio::runtime::Runtime;
 use walkdir::WalkDir;
 
@@ -398,7 +396,7 @@ pub trait Case: Sized + Sync + Send + UnwindSafe {
             TestResult::Mismatch(case, ast_string, expected_ast_string) => {
                 writer.write_all(format!("{case}: {path}\n",).as_bytes())?;
                 if args.diff {
-                    self.print_diff(writer, ast_string.as_str(), expected_ast_string.as_str())?;
+                    print_diff_in_terminal(expected_ast_string, ast_string);
                     println!("{case}: {path}");
                 }
             }
@@ -412,26 +410,6 @@ pub trait Case: Sized + Sync + Send + UnwindSafe {
             TestResult::Passed | TestResult::ToBeRun | TestResult::CorrectError(..) => {}
         }
         writer.write_all(b"\n")?;
-        Ok(())
-    }
-
-    fn print_diff<W: Write>(
-        &self,
-        writer: &mut W,
-        origin_string: &str,
-        expected_string: &str,
-    ) -> std::io::Result<()> {
-        let diff = TextDiff::from_lines(expected_string, origin_string);
-        for change in diff.iter_all_changes() {
-            let (sign, style) = match change.tag() {
-                ChangeTag::Delete => ("-", Style::new().red()),
-                ChangeTag::Insert => ("+", Style::new().green()),
-                ChangeTag::Equal => continue, // (" ", Style::new()),
-            };
-            writer.write_all(
-                format!("{}{}", style.apply_to(sign).bold(), style.apply_to(change)).as_bytes(),
-            )?;
-        }
         Ok(())
     }
 }

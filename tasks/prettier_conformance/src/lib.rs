@@ -280,7 +280,7 @@ impl TestRunner {
                         println!("Passed ✅");
                     } else {
                         println!("Failed ❌");
-                        oxc_tasks_common::print_diff_in_terminal(&diff);
+                        oxc_tasks_common::print_text_diff(&diff);
                     }
                     println!();
                 }

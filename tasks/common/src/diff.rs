@@ -28,7 +28,15 @@ const CONTEXT_LINES: usize = 3;
 /// +  43 │    new_code();
 ///    44 │}
 /// ```
-pub fn print_diff_in_terminal<T: DiffableStr + ?Sized>(diff: &TextDiff<T>) {
+/// Simple API that creates a diff from two strings and prints it.
+pub fn print_diff_in_terminal(expected: &str, result: &str) {
+    let diff = TextDiff::from_lines(expected, result);
+    print_text_diff(&diff);
+}
+
+/// Prints an existing `TextDiff` to the terminal.
+/// Use this when you need access to the `TextDiff` for other operations (e.g., `diff.ratio()`).
+pub fn print_text_diff<T: DiffableStr + ?Sized>(diff: &TextDiff<T>) {
     let mut context_buffer: VecDeque<_> = VecDeque::with_capacity(CONTEXT_LINES);
     let mut trailing_remaining = 0;
     let mut has_printed = false;

@@ -1853,7 +1853,6 @@ dependencies = [
 name = "oxc_coverage"
 version = "0.0.0"
 dependencies = [
- "console 0.16.2",
  "constcat",
  "cow-utils",
  "encoding_rs",
@@ -1931,7 +1930,6 @@ dependencies = [
  "oxc_semantic",
  "oxc_span",
  "oxc_syntax",
- "oxc_tasks_common",
  "phf",
  "pico-args",
  "rustc-hash",
